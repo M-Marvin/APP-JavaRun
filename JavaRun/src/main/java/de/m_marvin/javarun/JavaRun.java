@@ -2,6 +2,7 @@ package de.m_marvin.javarun;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -47,6 +48,18 @@ public class JavaRun {
 	public static final MemoryClassLoader CLASS_LOADER = new MemoryClassLoader(SOURCE_COMPILER.getClassFileManager());
 	public static final String MAIN_SCRIPT_CLASS = "SkriptMain";
 	
+	public static String resolveClassPaths(String classpath) {
+		StringBuilder sb = new StringBuilder();
+		String paths[] = classpath.split(";");
+		for (String path : paths)
+			try {
+				sb.append(new File(path).getCanonicalPath()).append(';');
+			} catch (IOException e) {
+				System.err.println("Invalid classpath '" + path + "', ignoring");
+			}
+		return sb.toString();
+	}
+	
 	public static boolean runSkript(File skriptFile, String classpath, String... arguments) {
 		
 		if (!skriptFile.isFile()) {
@@ -70,6 +83,8 @@ public class JavaRun {
 	}
 	
 	public static boolean runSkript(String skript, String classpath, String... arguments) {
+
+		classpath = resolveClassPaths(classpath);
 		
 		String classCode = PREPROCESSOR.process(MAIN_SCRIPT_CLASS, skript);
 		
