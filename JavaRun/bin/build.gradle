@@ -1,0 +1,49 @@
+
+plugins {
+	id "com.github.johnrengelman.shadow" version "7.1.0"
+}
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+
+group = 'com.github.M-Marvin'
+
+repositories {
+	mavenCentral()
+	maven { url 'https://jitpack.io' }
+}
+
+configurations {
+    shade
+    implementation.extendsFrom shade
+}
+
+dependencies {
+	
+	// CommandLineParser
+	//shade 'com.github.M-Marvin:LIBRARY-CommandLineParser:main-SNAPSHOT'
+	
+}
+
+java {
+    withSourcesJar()
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'de.m_marvin.javarun.JavaRun'
+        attributes 'Implementation-Version': '0.1 - alpha'
+        attributes 'Implementation-Title': 'Java Skript-Like Executor'
+        attributes 'Implementation-Vendor-Id': 'de.m_marvin'
+    }
+}
+
+task assembleBin() {
+	description "Copies all required files into the output installation folder"
+	
+	doLast {
+		ant.copy(file:'build/libs/JavaRun-all.jar', tofile:'../Runtime/javarun.jar')
+	}
+}
+
+assembleBin.dependsOn(shadowJar)
