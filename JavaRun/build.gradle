@@ -6,11 +6,20 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
 group = 'com.github.M-Marvin'
 
 repositories {
 	mavenCentral()
 	maven { url 'https://jitpack.io' }
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
 }
 
 configurations {
