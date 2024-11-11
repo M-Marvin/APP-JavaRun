@@ -3,6 +3,8 @@ package de.m_marvin.javarun.compile;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +12,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.tools.DiagnosticCollector;
@@ -28,11 +31,21 @@ public class SourceCompiler {
 	protected final JavaCompiler compiler;
 	protected final InMemoryFileManager classFileManager;
 	protected final DiagnosticCollector<JavaFileObject> diagnostics;
+	protected PrintStream out = System.out;
 	
 	public SourceCompiler() {
-		this.compiler = ToolProvider.getSystemJavaCompiler();
+		this(ToolProvider.getSystemJavaCompiler());
+	}
+	
+	public SourceCompiler(JavaCompiler compiler) {
+		Objects.requireNonNull(compiler);
+		this.compiler = compiler;
 		this.classFileManager = new InMemoryFileManager(this.compiler.getStandardFileManager(null, null, null));
 		this.diagnostics = new DiagnosticCollector<>();
+	}
+	
+	public void setOut(PrintStream out) {
+		this.out = out;
 	}
 	
 	public InMemoryFileManager getClassFileManager() {
@@ -43,16 +56,16 @@ public class SourceCompiler {
 		Iterable<JavaFileObject> sourceFiles = Collections.singleton(new StringJavaSource(className, classCode));
 		List<String> optionList = new ArrayList<String>();
 		optionList.addAll(Arrays.asList("-classpath",System.getProperty("java.class.path") + ";" + classpath));
-		CompilationTask task = compiler.getTask(null, classFileManager, diagnostics, optionList, null, sourceFiles);
+		CompilationTask task = compiler.getTask(new PrintWriter(out), classFileManager, diagnostics, optionList, null, sourceFiles);
 		if (task.call()) {
 			return true;
 		} else {
-			diagnostics.getDiagnostics().forEach(diag -> System.err.println(diag.toString()));
+			diagnostics.getDiagnostics().forEach(diag -> this.out.println(diag.toString()));
 			return false;
 		}
 	}
 	
-	protected static class StringJavaSource extends SimpleJavaFileObject {
+	public static class StringJavaSource extends SimpleJavaFileObject {
 
 		protected String sourceCode;
 		
@@ -68,7 +81,7 @@ public class SourceCompiler {
 		
 	}
 	
-	protected static class BytesJavaClass extends SimpleJavaFileObject {
+	public static class BytesJavaClass extends SimpleJavaFileObject {
 		
 		protected ByteArrayOutputStream buffer;
 		
@@ -88,7 +101,7 @@ public class SourceCompiler {
 		
 	}
 	
-	protected static class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
+	public static class InMemoryFileManager extends ForwardingJavaFileManager<JavaFileManager> {
 
 		protected Map<String, BytesJavaClass> name2classMap;
 		

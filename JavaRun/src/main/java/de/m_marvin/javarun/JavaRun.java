@@ -33,7 +33,7 @@ public class JavaRun {
 			}
 			
 			if (skriptFile.isFile()) {
-				boolean result = runSkript(skriptFile, classpath, arguments);
+				boolean result = runScript(skriptFile, classpath, arguments);
 				System.exit(result ? 0 : -1);;
 			}
 			
@@ -46,7 +46,7 @@ public class JavaRun {
 	public static final PreProcessor PREPROCESSOR = new PreProcessor();
 	public static final SourceCompiler SOURCE_COMPILER = new SourceCompiler();
 	public static final MemoryClassLoader CLASS_LOADER = new MemoryClassLoader(SOURCE_COMPILER.getClassFileManager());
-	public static final String MAIN_SCRIPT_CLASS = "SkriptMain";
+	public static final String MAIN_SCRIPT_CLASS = "ScriptMain";
 	
 	public static String resolveClassPaths(String classpath) {
 		StringBuilder sb = new StringBuilder();
@@ -60,7 +60,7 @@ public class JavaRun {
 		return sb.toString();
 	}
 	
-	public static boolean runSkript(File skriptFile, String classpath, String... arguments) {
+	public static boolean runScript(File skriptFile, String classpath, String... arguments) {
 		
 		if (!skriptFile.isFile()) {
 			System.err.println("Skript file does not exist!");
@@ -72,7 +72,7 @@ public class JavaRun {
 			String skript = new String(input.readAllBytes());
 			input.close();
 			
-			return runSkript(skript, classpath, arguments);
+			return runScript(skript, classpath, arguments);
 			
 		} catch (Exception e) {
 			System.out.println("Could not load skript file");
@@ -82,7 +82,7 @@ public class JavaRun {
 		
 	}
 	
-	public static boolean runSkript(String skript, String classpath, String... arguments) {
+	public static boolean runScript(String skript, String classpath, String... arguments) {
 
 		classpath = resolveClassPaths(classpath);
 		

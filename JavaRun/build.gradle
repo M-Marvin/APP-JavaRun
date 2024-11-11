@@ -1,40 +1,21 @@
 
-plugins {
-	id "com.github.johnrengelman.shadow" version "7.1.0"
-}
-
 apply plugin: 'java'
 apply plugin: 'maven-publish'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+version = '1.1'
 
-group = 'com.github.M-Marvin'
-
-repositories {
-	mavenCentral()
-	maven { url 'https://jitpack.io' }
-}
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
+repositories {}
 
 configurations {
     shade
     implementation.extendsFrom shade
 }
 
-dependencies {
-	
-	// CommandLineParser
-	//shade 'com.github.M-Marvin:LIBRARY-CommandLineParser:main-SNAPSHOT'
-	
-}
+dependencies {}
 
 java {
+	sourceCompatibility = "1.17"
+	targetCompatibility = "1.17"
     withSourcesJar()
 }
 
@@ -49,10 +30,32 @@ jar {
 
 task assembleBin() {
 	description "Copies all required files into the output installation folder"
+  	group = 'build'
 	
 	doLast {
-		ant.copy(file:'build/libs/JavaRun-all.jar', tofile:'../Runtime/javarun.jar')
+		ant.copy(file:'build/libs/JavaRun-' + version + '.jar', tofile:'../Runtime/javarun.jar')
 	}
 }
 
-assembleBin.dependsOn(shadowJar)
+assembleBin.dependsOn(assemble)
+
+publishing {
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/m-marvin/app-javarun")
+            credentials {
+                username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+                password = project.findProperty("gpr.key") ?: System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+        	groupId = 'de.m_marvin.javarun'
+        	artifactId = "javarun"
+        	
+            from components.java
+        }
+    }
+}
