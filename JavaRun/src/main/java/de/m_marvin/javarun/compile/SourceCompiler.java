@@ -3,7 +3,6 @@ package de.m_marvin.javarun.compile;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.ArrayList;
@@ -31,7 +30,7 @@ public class SourceCompiler {
 	protected final JavaCompiler compiler;
 	protected final InMemoryFileManager classFileManager;
 	protected final DiagnosticCollector<JavaFileObject> diagnostics;
-	protected PrintStream out = System.out;
+	protected PrintWriter out = new PrintWriter(System.out, true);
 	
 	public SourceCompiler() {
 		this(ToolProvider.getSystemJavaCompiler());
@@ -44,7 +43,7 @@ public class SourceCompiler {
 		this.diagnostics = new DiagnosticCollector<>();
 	}
 	
-	public void setOut(PrintStream out) {
+	public void setOut(PrintWriter out) {
 		this.out = out;
 	}
 	
